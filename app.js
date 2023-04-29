@@ -24,11 +24,13 @@ const signUpRoutes = require('./routes/signupRoutes')
 const loginRoutes =  require('./routes/loginRoutes')
 const expenseRoutes = require('./routes/expenseRoutes')
 const purchaseRoutes = require('./routes/purchaseRoutes')
+const premiumRoutes = require('./routes/premiumRoutes')
 
 app.use('/user',signUpRoutes);
 app.use('/user',loginRoutes)
 app.use('/expense',expenseRoutes)
 app.use('/purchase',purchaseRoutes)
+app.use('/premium',premiumRoutes)
 
 Expense.belongsTo(User)
 User.hasMany(Expense);
