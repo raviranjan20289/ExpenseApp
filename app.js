@@ -16,8 +16,10 @@ app.use(bodyParser.json({extended: false}))
 const sequelize = require('./utility/database');
 
 const signUpRoutes = require('./routes/signupRoutes')
+const loginRoutes =  require('./routes/loginRoutes')
 
 app.use('/user',signUpRoutes);
+app.use('/user',loginRoutes)
 
 sequelize.sync()
 .then(()=>{
