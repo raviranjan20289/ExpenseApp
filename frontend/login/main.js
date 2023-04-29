@@ -15,17 +15,17 @@ async function userLogin(e){
         }
          const response = await axios.post("http://localhost:3000/user/login",obj)
         
-         console.log(response.status)
-         if(response.status===201){
-            alert('User Login Successful')
+         console.log(response)
+         if(response){
+            alert(response.data.message)
          }
 
         //  console.log(response.headers)
         
     }catch(err){
         
-        console.log(err
-            )
+        alert(err.response.data.message)
+        console.log(err)
     }
 
 }
