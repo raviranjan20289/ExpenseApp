@@ -1,6 +1,10 @@
 const User = require('../models/userModel')
-
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+
+function generateToken(id, name){
+    return jwt.sign({userId:id,userName:name},'seekretKey')
+}
 
 exports.postLoginUser =async (req,res,next) => {
     try{
@@ -12,14 +16,13 @@ exports.postLoginUser =async (req,res,next) => {
         if(data.length>0){
                 
             bcrypt.compare(password, data[0].password,(err,resp)=>{
-                console.log(err)
-                console.log(resp)
+                
                 if(err){
                     throw new Error('ERR_PASS_AUTH Something went wrong');
                 }
                 if(resp===true){
-                    console.log(resp)
-                    res.status(201).json({success:resp,message:'User login successful'})
+                    
+                    res.status(201).json({success:resp,message:'User login successful', token:generateToken(data[0].id,data[0].name)})
                     
         
                 }
