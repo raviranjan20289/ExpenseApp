@@ -2,7 +2,7 @@ const User = require('../models/userModel')
 
 const bcrypt = require('bcrypt')
 
-exports.postLoginUser =async (req,res) => {
+exports.postLoginUser =async (req,res,next) => {
     try{
         const email = req.body.email;
         const password = req.body.password;
@@ -20,6 +20,8 @@ exports.postLoginUser =async (req,res) => {
                 if(resp===true){
                     console.log(resp)
                     res.status(201).json({success:resp,message:'User login successful'})
+                    
+        
                 }
                 else{
                     res.status(401).json({success:false,message:'Incorrect Password'});
@@ -36,3 +38,7 @@ exports.postLoginUser =async (req,res) => {
     }
     
 }   
+
+exports.getExpensePage = (req,res) =>{
+    
+}

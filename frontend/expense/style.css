@@ -1,0 +1,21 @@
+.btn-prod{
+    float: right;
+}
+body{
+    background-color: black;
+    color-scheme: dark;
+    color:azure;
+}
+.edit-btn{
+    background-color: rgb(31, 29, 29);
+    color:azure;
+    margin-right: 4px;
+}
+.edit-btn:hover{
+    background-color: rgb(48, 53, 53);
+}
+
+
+.btn:active{
+    background-color: rgb(48, 53, 53)
+}

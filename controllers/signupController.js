@@ -7,7 +7,8 @@ exports.postAddUser =async (req,res) => {
         const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
-    
+        
+        
         bcrypt.hash(password, 10, async(err,hash) =>{
             const data = await User.create({
                 name : name,
@@ -15,9 +16,10 @@ exports.postAddUser =async (req,res) => {
                 password: hash
             })
             res.json({userData: data});
+            console.log(err)
         })
         }catch(err){
-        res.status(500).json(err)
+        res.status(500).json({error:err,message:'user exists'})
         console.log(err)
     }
     

@@ -16,9 +16,10 @@ async function userLogin(e){
          const response = await axios.post("http://localhost:3000/user/login",obj)
         
          console.log(response)
-         if(response){
+         
             alert(response.data.message)
-         }
+            window.location.href='../expense/index.html'
+         
 
         //  console.log(response.headers)
         

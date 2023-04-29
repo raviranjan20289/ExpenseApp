@@ -104,7 +104,9 @@
     margin: 5px 0;
     
   }
-
+  .btn:active{
+    background-color: rgb(48, 53, 53)
+}
   
   
   .bg-dark {
