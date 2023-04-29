@@ -2,6 +2,7 @@ const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
+
 function generateToken(id, name){
     return jwt.sign({userId:id,userName:name},'seekretKey')
 }
@@ -41,7 +42,3 @@ exports.postLoginUser =async (req,res,next) => {
     }
     
 }   
-
-exports.getExpensePage = (req,res) =>{
-    
-}
