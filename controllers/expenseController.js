@@ -17,42 +17,6 @@ exports.getExpenses = async (req,res) => {
     }
 }
 
-// exports.postAddExpense = async (req,res) => {
-//     try{
-//     const t = await sequelize.transaction()
-//     const item =req.body.item;
-//     const expense = req.body.expense;
-//     const category = req.body.category;
-//     const description = req.body.description
-    
-
-//     if(item==''|| expense=='' || category=='' || description==''){
-//         res.json({message:'Please Enter All Fields'})
-//     }
-//     else{
-//         const data = await req.user.createExpense({
-//             item: item,
-//             expense: expense,
-//             category: category,
-//             description: description,    
-//         },{transaction: t})
-//         if(!req.user.totalExpense){
-//             req.user.totalExpense=0
-//         }
-//         let expenseSum = parseInt(req.user.totalExpense)+parseInt(expense) 
-        
-//         await req.user.updates({totalExpense: expenseSum},{transaction: t})
-//         await t.commit()
-//         return res.status(200).json({expenseData: data})
-//     }
-//     }catch(err){
-//         const t= sequelize.transaction()
-//         console.log(err)
-//         await t.rollback()
-//         return res.status(500).json({success:false,error:err})
-//     }
-    
-// }
 
 exports.postAddExpense = async (req,res) => {
     const t = await sequelize.transaction();
