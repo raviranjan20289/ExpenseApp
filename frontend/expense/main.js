@@ -2,20 +2,22 @@ document.getElementById('myForm').addEventListener('submit',addExpense)
 
 const expenseList=document.getElementById('expenseList');
 
-
+const token = localStorage.getItem('token')
 
 
 
 
 window.addEventListener('DOMContentLoaded',async ()=>{
     try{
-        const token = localStorage.getItem('token')
+        
         let getReq =await axios.get("http://localhost:3000/expense/getExpenses", {headers: {'Authorization': token}})
         if(getReq.data.premium){
             document.getElementById('myForm').innerHTML+="<br><br>You are a Premium user "
             document.getElementById('myForm').appendChild(leaderBtn)
-            // document.getElementById('myForm').innerHTML+="<br><br>You are a Premium user <button class='leaderBoard btn-right' id='leaderBoard'>Leaderboard</button> "
             document.getElementById('rzp-btn1').style.display='none';
+            document.getElementById('myForm').appendChild(reportBtn)
+            
+            
         }
         // console.log(getReq)
         for(let i=0;i<getReq.data.expenseData.length;i++){
@@ -50,7 +52,7 @@ async function addExpense(e){
         // }
         
         // else{
-            const token = localStorage.getItem('token')
+            
             let postReq= await axios.post("http://localhost:3000/expense/addExpense",obj, {headers: {'Authorization': token}})
             if(postReq.data.message){
                 alert(postReq.data.message)
@@ -80,7 +82,7 @@ async function displayExpense(obj){
         
         li.id=obj.id
 
-        console.log(li)
+        
         
         const editBtn=document.createElement('button')
         
@@ -128,16 +130,8 @@ async function editExpense(obj){
             await axios.delete(`http://localhost:3000/expense/deleteExpense/${obj.id}`)
             
             const child=document.getElementById(obj.id)
-            // console.log(child)
-                console.log(child.parentElement)
-                expenseList.removeChild(child)
-                // let objNew={
-            //     product:product.value,
-            //     price:price.value,
-            //     category:category.value
-            // }
-
-            
+                
+            expenseList.removeChild(child)
 
             console.log("Expense editted successfully")
             
@@ -148,17 +142,17 @@ async function editExpense(obj){
     
 }
 
+
 async function deleteExpense(key){
     try{
         if(confirm("Press OK to confirm delete")){
-            const token = localStorage.getItem('token')
+            
             const delReq = await axios.delete(`http://localhost:3000/expense/deleteExpense/${key}`,{headers: {'Authorization': token}})
                 
                 console.log(delReq)
                 
                 const child=document.getElementById(key)
-                // console.log(child)
-                // console.log(child.parentElement)
+            
                 expenseList.removeChild(child)
             }
 
@@ -178,7 +172,7 @@ leaderBtn.appendChild(document.createTextNode('Leaderboard'))
 
 leaderBtn.onclick =async function leaderBoard() {
     try{
-        const token = localStorage.getItem('token')
+       
         const resp =await axios.get('http://localhost:3000/premium/leaderboard', {headers: {'Authorization': token}})
         // console.log(resp.data[0].name)
         document.getElementById('myForm').innerHTML+='<br><br><ul id="lBoard"><h4>Leaderboard</h4></ul>'
@@ -199,12 +193,13 @@ leaderBtn.onclick =async function leaderBoard() {
         throw new Error(JSON.stringify(err))
 
     }
+
 }
 
 
 document.getElementById('rzp-btn1').onclick = async function(e) {
  try{
-    const token = localStorage.getItem('token')
+    
     let response = await axios.get("http://localhost:3000/purchase/premium", {headers: {'Authorization': token}})
     let options = {
     "key": response.data.key_id,
@@ -247,4 +242,41 @@ rzp1.on('payment.failed',async function(){
     throw new Error(JSON.stringify(err))
  }   
 
+}
+
+function displayDownloadHistory(data) {
+    document.getElementById('myForm').innerHTML+=`<br><br>Download History <br><hr> `
+    for(let i=0;i<data.length;i++){
+        document.getElementById('myForm').innerHTML+=` <br>url:<a href=${data[i].url}> report${i+1}</a> <br> Dowloaded at ${data[i].createdAt}<br><br> <hr>`
+    }
+}
+const reportBtn = document.createElement('button') 
+reportBtn.type='button'   
+reportBtn.id='report'
+reportBtn.classList='report btn-right'
+reportBtn.appendChild(document.createTextNode('Expense Report'))
+reportBtn.style.marginRight='5px'
+
+reportBtn.onclick = async function expenseReport(){
+    try{
+        
+        const response = await axios.get('http://localhost:3000/expense/download', { headers: {"Authorization" : token} })
+        if(response.status==200){
+            console.log('resp',response)
+            displayDownloadHistory(response.data.downloaded)
+            const a = document.createElement("a");
+            a.href = response.data.fileURL;
+            a.download = 'myexpense.csv';
+            a.click();
+        }else{
+            throw new Error(response.data.message)
+        }
+        // document.getElementById('myForm').innerHTML+='<br><br><ul id="daily"><h4>Daily Expense Report</h4></ul>'
+        // document.getElementById('myForm').innerHTML+='<br><br><ul id="weekly"><h4>Weekly Expense Report</h4></ul>'
+        // document.getElementById('myForm').innerHTML+='<br><br><ul id="monthly"><h4>Monthly Expense Report</h4></ul>'
+
+    }catch(err){
+        console.log(err)
+        throw new Error(JSON.stringify(err))
+    }
 }

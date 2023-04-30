@@ -1,21 +1,24 @@
 const User = require('../models/userModel')
 const Expense = require('../models/expenseModel')
 const sequelize = require('../utility/database')
-
+const History = require('../models/reportModel')
+const UserService = require('../services/userServices')
+const S3Service = require('../services/S3Services')
 
 
 exports.getExpenses = async (req,res) => {
     try{
-    
+        const download = await UserService.getDownloadHistory(req)
         const expense= await req.user.getExpenses()
         const user= await req.user
         
-        return res.status(200).json({expenseData: expense,premium:user.premiumUser})
+        return res.status(200).json({expenseData: expense,premium:user.premiumUser,downloaded:download})
     }catch(err){
-        
+        res.status(500).json({success:false,message:"ERR get_Expenses :no user found"})
         console.log(err)
     }
 }
+
 
 
 exports.postAddExpense = async (req,res) => {
@@ -64,15 +67,38 @@ exports.deleteExpense = async (req,res) =>{
         })
         
         const response = await Expense.destroy({where:{id:expId},transaction: t})
-        const user = await User.findOne({where:{id:resp[0].userId},transaction: t})
+        const user = await User.findOne({where:{id:resp.userId},transaction: t})
         console.log(user)
-        const expenseSum = Number(user[0].totalExpense)-Number(resp[0].expense)
-        await User.update({totalExpense: expenseSum},{where:{id:resp[0].userId},transaction: t})
+        const expenseSum = Number(user.totalExpense)-Number(resp.expense)
+        await User.update({totalExpense: expenseSum},{where:{id:resp.userId},transaction: t})
         await t.commit()
         res.json({response:response})
     }catch(err){
         await t.rollback();
         res.status(500).json({success:false,Error:err})
         console.log(err)
+    }
+}
+
+
+
+exports.downloadExpense = async (req,res) =>{
+    try{
+        const expense = await UserService.getExpenses(req);
+        
+        const userId = req.user.id
+        const stringifiedExpense = JSON.stringify(expense)
+        const filename =`Expense${userId}-${new Date()}.txt`
+        const fileURL = await S3Service.uploadToS3(stringifiedExpense,filename) 
+        await UserService.createDownloadHistory(req,fileURL)
+        const download = await UserService.getDownloadHistory(req)
+        
+
+        res.status(200).json({success:true,fileURL:fileURL,downloaded:download})
+    }catch(err){
+        console.log("ERR Download_Expense",err)
+        res.status(500).json({success:false,Error:err})
+        throw new Error(JSON.stringify(err))
+
     }
 }
