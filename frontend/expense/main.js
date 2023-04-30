@@ -4,31 +4,89 @@ const expenseList=document.getElementById('expenseList');
 
 const token = localStorage.getItem('token')
 
+const itemsPerPage = document.getElementById("itemsPerPage");
+
+itemsPerPage.addEventListener('click',getExpense);
+
 
 
 
 window.addEventListener('DOMContentLoaded',async ()=>{
     try{
-        
-        let getReq =await axios.get("http://localhost:3000/expense/getExpenses", {headers: {'Authorization': token}})
+        let page=1
+        let getReq =await axios.get(`http://localhost:3000/expense/getExpenses?page=${page}&items=${itemsPerPage.value}`, {headers: {'Authorization': token}})
         if(getReq.data.premium){
             document.getElementById('myForm').innerHTML+="<br><br>You are a Premium user "
             document.getElementById('myForm').appendChild(leaderBtn)
             document.getElementById('rzp-btn1').style.display='none';
-            document.getElementById('myForm').appendChild(reportBtn)
-            
-            
+            document.getElementById('myForm').appendChild(reportBtn)  
         }
+        
+        const pageData = getReq.data
+        
         // console.log(getReq)
-        for(let i=0;i<getReq.data.expenseData.length;i++){
+         pagination(pageData)
+         
+        // for(let i=0;i<getReq.data.expenseData.length;i++){
 
-            displayExpense(getReq.data.expenseData[i])  
-        }
+        //     displayExpense(getReq.data.expenseData[i])  
+        // }
     }catch(err){
         console.log(err)
         console.log("Something went wrong CODE:ERR DOM_CONT_LOADED")
     }
 })
+async function getExpense(page){
+    try{
+        let getReq =await axios.get(`http://localhost:3000/expense?page=${page}&items=${itemsPerPage.value}`, {headers: {'Authorization': token}})
+        const pageData = getReq.data;
+        console.log(pageData)
+        expenseCount= pageData.length;
+        pagination(pageData);
+    }catch(err){
+        console.log("ERR in getExpense main.js_expense ",err)
+        throw new Error(err);
+    }
+    
+    
+}
+
+function pagination(obj){
+    const pagination=document.getElementById('pagination');
+    pagination.innerHTML="";
+    if(obj.hasPrevPage){
+        const btnPrev= document.createElement('button');
+        btnPrev.type= "button";
+        btnPrev.innerHTML= obj.prevPage;
+        btnPrev.addEventListener('click',()=>getExpense(obj.prevPage))
+        pagination.appendChild(btnPrev)
+    }
+    const btn= document.createElement('button');
+    btn.type= "button";
+    btn.innerHTML= `<h3>${obj.currentPage}</h3>`
+    expenseList.innerHTML='';
+    for(let i=0;i<obj.expenseData.length;i++){
+        displayExpense(obj.expenseData[i])
+    }
+    console.log(obj.expenseData)
+    pagination.appendChild(btn)
+    if(obj.hasNextPage){
+        const btnNext= document.createElement('button');
+        btnNext.type= "button";
+        btnNext.innerHTML= obj.nextPage;
+        btnNext.addEventListener('click',()=>getExpense(obj.nextPage))
+        pagination.appendChild(btnNext) 
+    }
+    if(obj.lastPage!=obj.currentPage){
+        const lastbtn = document.createElement('button');
+        lastbtn.type = 'button';
+        lastbtn.innerHTML= '>>'
+        lastbtn.addEventListener('click',()=>getExpense(obj.lastPage))
+        pagination.appendChild(lastbtn)
+
+    }
+}
+
 
 async function addExpense(e){
     try{
@@ -57,8 +115,11 @@ async function addExpense(e){
             if(postReq.data.message){
                 alert(postReq.data.message)
             }
-            // console.log(postReq)
-            displayExpense(postReq.data.expenseData)
+            console.log(postReq)
+            
+
+                displayExpense(postReq.data.expenseData)
+            
             expense.value=''
             item.value=''
             category.value=''

@@ -27,8 +27,16 @@
               </select>
             <input type="submit"  class="btn btn-dark" value="Add Expense">
         </form>
-        <ul id="expenseList"><h4>Expenses</h4></ul>
+        <select style="float: right;" id ="itemsPerPage" class="itemsPerPage">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+        </select>
+        <label style="float: right;" for="itemsPerPage">Items Per Page </label>
+        <ul id="expenseList"><h4>Expenses </h4></ul>
+        
     </section>
+    <ul id="pagination" class="centered"></ul>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
     <script src="main.js"></script>   

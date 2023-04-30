@@ -8,11 +8,32 @@ const S3Service = require('../services/S3Services')
 
 exports.getExpenses = async (req,res) => {
     try{
+        const page= +req.query.page || 1;
+        const itemsPerPage=Number(req.query.items) ;
+       
+        console.log("OOOOOOO",itemsPerPage)
+        
         const download = await UserService.getDownloadHistory(req)
         const expense= await req.user.getExpenses()
         const user= await req.user
+        let expenseCount = await Expense.count({where:{userId:user.id}})
+        console.log(expenseCount)
+        const expenseToBeDisplayed =await Expense.findAll({
+            offset: (page-1)*itemsPerPage,
+            limit:itemsPerPage
+        },{where:{userId:user.id}})
         
-        return res.status(200).json({expenseData: expense,premium:user.premiumUser,downloaded:download})
+        return res.status(200).json({expenseData: expenseToBeDisplayed,
+            premium:user.premiumUser,
+            downloaded:download,
+            currentPage:page,
+            hasNextPage: expenseCount> (page*itemsPerPage),
+            nextPage:page+1,
+            hasPrevPage:page>1,
+            prevPage:page-1,
+            itemsPerPage:itemsPerPage,
+            lastPage:Math.ceil(expenseCount/itemsPerPage)   
+        })
     }catch(err){
         res.status(500).json({success:false,message:"ERR get_Expenses :no user found"})
         console.log(err)
